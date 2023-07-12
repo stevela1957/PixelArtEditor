@@ -3,7 +3,7 @@ from settings import *
 
 pg.init()
 
-def get_input(events, sizes, available_colors):
+def get_input(events, sizes, available_colors, actions):
     for event in events:
         if event.type == pg.MOUSEBUTTONDOWN:
             pos = pg.mouse.get_pos()
@@ -16,7 +16,8 @@ def get_input(events, sizes, available_colors):
     create_grid(block_size)
     show_size_selections(sizes)
     show_colors(available_colors)
-    show_actions()
+    show_actions(actions)
+    show_image()
 
 def update_grid_size(pos):
     global grid_size,block_size
@@ -54,14 +55,24 @@ def show_colors(available_colors):
     for color in available_colors:
         pg.draw.rect(screen, GRAY, ((rect_x - 5, rect_y - 5, color_size + 10, color_size + 10)))
         pg.draw.rect(screen, color, ((rect_x, rect_y, color_size, color_size)))
-        rect_x += 45
+        rect_x += 50
         if rect_x >= 600:
             rect_x, rect_y = (40, rect_y + 60 )
         if rect_y > 800:
             break  # Limit to 2 rows
 
-def show_actions():
-    pass
+def show_actions(actions):
+    rect_width = 90
+    spacing = (GRID_WIDTH - rect_width * len(actions)) // (len(actions) + 1)
+    start_pos = spacing
+    for ix in actions:
+        pg.draw.rect(screen, BLACK, (start_pos, 860, rect_width, 50), 3)
+        action_name = button_font.render(ix, True, BLACK)
+        screen.blit(action_name, (start_pos + (rect_width - action_name.get_width())//2, 880))
+        start_pos += spacing + rect_width
+
+def show_image():
+    pg.draw.rect(screen, MAGENTA, (640, 720, 200, 200))
 
 def plot_rect(text, pos, size, selected):
     label = title_font.render(text, True, BLACK)
@@ -73,7 +84,7 @@ def plot_rect(text, pos, size, selected):
 screen = pg.display.set_mode((WIDTH, HEIGHT))
 pg.display.set_caption("Pixel Art Editor")
 
-button_font = pg.font.Font(None, 20)
+button_font = pg.font.Font(None, 30)
 title_font = pg.font.Font(None, 50)
 app_title = title_font.render("PIXEL ART EDITOR", True, GREEN)
 
@@ -88,8 +99,8 @@ sizes = [
     ["32x32",(680, 130), (140, 40), True, 32],
     ["64x64",(680, 170), (140, 40), False, 64]
 ]
-available_colors = [BLACK, WHITE, RED, GREEN, BLUE, YELLOW, CYAN, MAGENTA, xxx, xxx, xxx, \
-                    xxx, xxx, xxx, xxx, xxx, xxx, xxx]
+
+app_actions = ["CLEAR", "FILL", "IMPORT", "EXPORT", "QUIT"]
 
 active = True
 
@@ -101,10 +112,7 @@ while active:
 
     screen.fill(DARK_GRAY)
     screen.blit(app_title, (WIDTH/2 - app_title.get_width()/2, 10))
-    #pg.draw.rect(screen, BLUE, (20, 720, 580, 120), 3)
-    pg.draw.rect(screen, CYAN, (20, 860, 580, 60), 3)
-    pg.draw.rect(screen, MAGENTA, (620, 720, 200, 200), 3)
-    get_input(events, sizes, available_colors)
+    get_input(events, sizes, COLORS, app_actions)
     pg.display.update()
 
 pg.quit()
