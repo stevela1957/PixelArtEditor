@@ -10,9 +10,9 @@ def get_input(events, sizes, available_colors, actions):
             if pos[0] >= 680 and pos[0] <= 840:
                 update_grid_size(pos)
             if 20 <= pos[0] <= 600 and 720 <= pos[1] <= 840:
-                print("Selecting color")
+                get_color(pos)
             if 20 <= pos[0] <= 600 and 860 <= pos[1] <= 920:
-                print("Selecting action")
+                get_actions(pos)
     create_grid(block_size)
     show_size_selections(sizes)
     show_colors(available_colors)
@@ -49,10 +49,10 @@ def show_size_selections(sizes):
     for size in sizes:
         plot_rect(size[0], size[1], size[2], size[3])
 
-def show_colors(available_colors):
+def show_colors(color_palette):
     rect_x, rect_y = (40, 740)
     color_size = 30
-    for color in available_colors:
+    for color in color_palette:
         pg.draw.rect(screen, GRAY, ((rect_x - 5, rect_y - 5, color_size + 10, color_size + 10)))
         pg.draw.rect(screen, color, ((rect_x, rect_y, color_size, color_size)))
         rect_x += 50
@@ -60,6 +60,20 @@ def show_colors(available_colors):
             rect_x, rect_y = (40, rect_y + 60 )
         if rect_y > 800:
             break  # Limit to 2 rows
+
+def get_color(pos):
+    global current_color
+    start_x, start_y = 40, 740
+    num_cols = (GRID_WIDTH - 40) // 50
+    if 735 <= pos[1] <= 775: row = 0
+    else: row = 1
+    col_start = (pos[0] - 40) // 50
+    col_end = ((pos[0] -40) % 50)
+    if col_end <= 30:
+        ix = row * num_cols + col_start
+        if ix < len(COLOR_NAMES):
+            print(f"You selected {COLOR_NAMES[ix]}")
+            current_color = COLORS[ix]
 
 def show_actions(actions):
     rect_width = 90
@@ -70,6 +84,20 @@ def show_actions(actions):
         action_name = button_font.render(ix, True, BLACK)
         screen.blit(action_name, (start_pos + (rect_width - action_name.get_width())//2, 880))
         start_pos += spacing + rect_width
+
+def get_actions(pos):
+    global active, block_size, current_color
+    rect_width = 90
+    spacing = (GRID_WIDTH - rect_width * len(APP_ACTIONS)) // (len(APP_ACTIONS) + 1)
+    start_pos = spacing
+    col = (pos[0] - start_pos) // (rect_width + spacing)
+    col_end = (pos[0] - start_pos) % (rect_width + spacing)
+    if col_end <= 90:
+        if APP_ACTIONS[col] == "QUIT": active = False
+        if APP_ACTIONS[col] == "CLEAR":
+            print("Clearing grid")
+            create_grid(block_size)
+            current_color = (0, 0, 0)
 
 def show_image():
     pg.draw.rect(screen, MAGENTA, (640, 720, 200, 200))
@@ -92,6 +120,7 @@ clock = pg.time.Clock()
 
 # App variables
 grid_size = 32
+current_color = (255, 255, 255)
 block_size = GRID_WIDTH // grid_size
 sizes = [
     ["8x8",(680, 50), (140, 40), False, 8],
@@ -99,8 +128,6 @@ sizes = [
     ["32x32",(680, 130), (140, 40), True, 32],
     ["64x64",(680, 170), (140, 40), False, 64]
 ]
-
-app_actions = ["CLEAR", "FILL", "IMPORT", "EXPORT", "QUIT"]
 
 active = True
 
@@ -112,7 +139,7 @@ while active:
 
     screen.fill(DARK_GRAY)
     screen.blit(app_title, (WIDTH/2 - app_title.get_width()/2, 10))
-    get_input(events, sizes, COLORS, app_actions)
+    get_input(events, sizes, COLORS, APP_ACTIONS)
     pg.display.update()
 
 pg.quit()

@@ -1,5 +1,5 @@
 # Screen Constants
-WIDTH = 840
+WIDTH = 860
 HEIGHT = 940
 GRID_WIDTH = 640
 GRID_HEIGHT = 640
@@ -16,7 +16,7 @@ LIME = (205, 235, 52)
 EMERALD = (110, 235, 52)
 BLUE = (0, 0, 255)
 SKY_BLUE = (52, 217, 235)
-LIGHT_BLUE = (0, 0, 40)
+LIGHT_BLUE = (52, 201, 240)
 ROYAL_BLUE = (52, 82, 235)
 PURPLE = (110, 52, 235)
 YELLOW = (255, 255, 0)
@@ -53,3 +53,29 @@ COLORS = [
     DARK_GRAY,
     ROYAL_PURPLE
 ]
+
+COLOR_NAMES = [
+     "Black",
+     "White",
+     "Red",
+     "Green",
+     "Lime",
+     "Emerald",
+     "Blue",
+     "Sky Blue",
+     "Light Blue",
+     "Royal Blue",
+     "Purple",
+     "Yellow",
+     "Cyan",
+     "Magenta",
+     "Pink",
+     "Strawberry",
+     "Orange",
+     "Gray",
+     "Light Gray",
+     "Dark Gray",
+     "Royal Purple"
+ ]
+
+APP_ACTIONS = ["CLEAR", "FILL", "IMPORT", "EXPORT", "QUIT"]
