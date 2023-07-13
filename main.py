@@ -5,7 +5,7 @@ from settings import *
 
 pg.init()
 
-def get_input(events, sizes, available_colors, actions):
+def get_input(events, sizes):
     for event in events:
         if event.type == pg.MOUSEBUTTONDOWN:
             pos = pg.mouse.get_pos()
@@ -13,39 +13,39 @@ def get_input(events, sizes, available_colors, actions):
                 process_grid_entry(pos)
             if pos[0] >= SCALE_LEFT and pos[0] <= SCALE_RIGHT:
                 update_grid_size(pos)
-            if 20 <= pos[0] <= 600 and 720 <= pos[1] <= 840:
+            if 20 <= pos[0] <= 620 and 720 <= pos[1] <= 840:
                 get_color(pos)
             if 20 <= pos[0] <= 600 and 860 <= pos[1] <= 920:
                 get_actions(pos)
-    create_grid(block_size)
-    #print(grid_array)
+    show_grid(block_size)
     show_size_selections(sizes)
-    show_colors(available_colors)
-    show_actions(actions)
+    show_colors(COLORS)
+    show_actions(APP_ACTIONS)
     create_image()
 
 def update_grid_size(pos):
-    global grid_size,block_size
+    global grid_size,block_size, grid_array
     size = -1
-    if pos[1] >= 50 and pos[1] < 90:
-        size = 0
-    if pos[1] >= 90 and pos[1] < 130:
-        size = 1
-    if pos[1] >= 130 and pos[1] < 170:
-        size = 2
-    if pos[1] >= 170 and pos[1] < 210:
-        size = 3
+    scale_found = False
+    while not scale_found:
+        for ix in range(len(sizes)):
+            if GRID_TOP + (ix * SCALE_HEIGHT) <= pos[1] < GRID_TOP + (ix * SCALE_HEIGHT) + SCALE_HEIGHT:
+                size = ix
+                scale_found = True
     if size != -1:
+        print(size)
         for ix in range(len(sizes)):
             sizes[ix][3] = False
         if 0 <= size <= len(sizes) - 1:
             sizes[size][3] = True
             grid_size = sizes[size][4]
             block_size = GRID_WIDTH // grid_size
+            create_grid(block_size)
 
 def create_grid(block_size):
     global grid_array
     grid_array = []
+    print("Block size is ",block_size)
     for row in range(0, GRID_HEIGHT // block_size):
         temp_arr = []
         for col in range(0, GRID_WIDTH // block_size):
@@ -54,16 +54,22 @@ def create_grid(block_size):
             temp_arr.append(color)
             pg.draw.rect(screen, color, (col * block_size + 20, row * block_size + 50, block_size, block_size))
         grid_array.append(temp_arr)
+
+def show_grid(block_size):
+    for row in range(0, GRID_HEIGHT // block_size):
+        for col in range(0, GRID_WIDTH // block_size):
+            pg.draw.rect(screen, grid_array[row][col], (col * block_size + 20, row * block_size + 50, block_size, block_size))
+
 def process_grid_entry(pos):
     print(f"Processing grid entry at position({pos[0]}, {pos[1]}.  Current color is {current_color}")
-    # Identify block, based on current block_size
-
-def create_grid_array():
-    # Determine grid size, then create RGB list/array based on that list
-    # Initial pass will be a list created with (0, 0, 0) in each grid position
-    # This will then be converted via Numpy and PIL into a .png image
-    # This image will be displayed in the bottom right corner of the screen display
-    pass
+    # Identify block, based on current block_size and update color at that block
+    global grid_array
+    col = (pos[0] - GRID_LEFT) // block_size
+    row = (pos[1] - GRID_TOP) // block_size
+    block_x = col * block_size + GRID_LEFT
+    block_y = row * block_size + GRID_TOP
+    grid_array[row][col] = current_color
+    pg.draw.rect(screen, current_color, (block_x, block_y, block_size, block_size))
 
 def show_size_selections(sizes):
     for size in sizes:
@@ -73,17 +79,19 @@ def show_colors(color_palette):
     rect_x, rect_y = (40, 740)
     color_size = 30
     for color in color_palette:
-        pg.draw.rect(screen, GRAY, ((rect_x - 5, rect_y - 5, color_size + 10, color_size + 10)))
+        if color == current_color:
+            pg.draw.rect(screen, WHITE_SHADOW, ((rect_x - 5, rect_y - 5, color_size + 10, color_size + 10)))
+        else:
+            pg.draw.rect(screen, GRAY, ((rect_x - 5, rect_y - 5, color_size + 10, color_size + 10)))
         pg.draw.rect(screen, color, ((rect_x, rect_y, color_size, color_size)))
         rect_x += 50
-        if rect_x >= 600:
+        if rect_x >= 620:
             rect_x, rect_y = (40, rect_y + 60 )
         if rect_y > 800:
             break  # Limit to 2 rows
 
 def get_color(pos):
     global current_color
-    start_x, start_y = 40, 740
     num_cols = (GRID_WIDTH - 40) // 50
     if 735 <= pos[1] <= 775: row = 0
     else: row = 1
@@ -92,7 +100,6 @@ def get_color(pos):
     if col_end <= 30:
         ix = row * num_cols + col_start
         if ix < len(COLOR_NAMES):
-            print(f"You selected {COLOR_NAMES[ix]}")
             current_color = COLORS[ix]
 
 def show_actions(actions):
@@ -115,7 +122,6 @@ def get_actions(pos):
     if col_end <= 90:
         if APP_ACTIONS[col] == "QUIT": active = False
         if APP_ACTIONS[col] == "CLEAR":
-            print("Clearing grid")
             create_grid(block_size)
             current_color = (0, 0, 0)
         if APP_ACTIONS[col] == "FILL": print("You chose 'FILL'")
@@ -127,7 +133,7 @@ def create_image():
     img = Image.fromarray(array)
     img.save('pixel_img.png')
     pixel_image = pg.transform.scale(pg.image.load('pixel_img.png'), (200, 200))
-    screen.blit(pixel_image, (640, 720))
+    screen.blit(pixel_image, (642, 710))
 
 def plot_rect(text, pos, size, selected):
     label = title_font.render(text, True, BLACK)
@@ -141,33 +147,29 @@ pg.display.set_caption("Pixel Art Editor")
 
 button_font = pg.font.Font(None, 30)
 title_font = pg.font.Font(None, 50)
-app_title = title_font.render("PIXEL ART EDITOR", True, ROYAL_PURPLE)
+app_title = title_font.render("PIXEL ART EDITOR", True, BLUE)
 
 clock = pg.time.Clock()
 
 # App variables
 grid_size = 32
+grid_array = []
 current_color = (255, 255, 255)
 block_size = GRID_WIDTH // grid_size
-grid_array = []
 sizes = [
-    ["8x8",(680, 50), (140, 40), False, 8],
-    ["16x16",(680, 90), (140, 40), False, 16],
-    ["32x32",(680, 130), (140, 40), True, 32],
-    ["64x64",(680, 170), (140, 40), False, 64]
+    ["8x8",(692, 50), (140, 40), False, 8],
+    ["16x16",(692, 90), (140, 40), False, 16],
+    ["32x32",(692, 130), (140, 40), True, 32],
+    ["64x64",(692, 170), (140, 40), False, 64]
 ]
 
+create_grid(block_size)
 active = True
-
 while active:
     events = pg.event.get()
-    for event in events:
-        if event.type == pg.QUIT:
-            active = False
-
     screen.fill(DARK_GRAY)
     screen.blit(app_title, (WIDTH/2 - app_title.get_width()/2, 10))
-    get_input(events, sizes, COLORS, APP_ACTIONS)
+    get_input(events, sizes)
     pg.display.update()
     clock.tick(FPS)
 
