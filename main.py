@@ -1,4 +1,6 @@
 import pygame as pg
+import numpy as np
+from PIL import Image
 from settings import *
 
 pg.init()
@@ -7,17 +9,20 @@ def get_input(events, sizes, available_colors, actions):
     for event in events:
         if event.type == pg.MOUSEBUTTONDOWN:
             pos = pg.mouse.get_pos()
-            if pos[0] >= 680 and pos[0] <= 840:
+            if GRID_LEFT <= pos[0] <= GRID_RIGHT and GRID_TOP <= pos[1] <= GRID_BOTTOM:
+                process_grid_entry(pos)
+            if pos[0] >= SCALE_LEFT and pos[0] <= SCALE_RIGHT:
                 update_grid_size(pos)
             if 20 <= pos[0] <= 600 and 720 <= pos[1] <= 840:
                 get_color(pos)
             if 20 <= pos[0] <= 600 and 860 <= pos[1] <= 920:
                 get_actions(pos)
     create_grid(block_size)
+    #print(grid_array)
     show_size_selections(sizes)
     show_colors(available_colors)
     show_actions(actions)
-    show_image()
+    create_image()
 
 def update_grid_size(pos):
     global grid_size,block_size
@@ -39,11 +44,26 @@ def update_grid_size(pos):
             block_size = GRID_WIDTH // grid_size
 
 def create_grid(block_size):
+    global grid_array
+    grid_array = []
     for row in range(0, GRID_HEIGHT // block_size):
+        temp_arr = []
         for col in range(0, GRID_WIDTH // block_size):
             if (col + row) % 2: color = LIGHT_GRAY
             else: color = GRAY
+            temp_arr.append(color)
             pg.draw.rect(screen, color, (col * block_size + 20, row * block_size + 50, block_size, block_size))
+        grid_array.append(temp_arr)
+def process_grid_entry(pos):
+    print(f"Processing grid entry at position({pos[0]}, {pos[1]}.  Current color is {current_color}")
+    # Identify block, based on current block_size
+
+def create_grid_array():
+    # Determine grid size, then create RGB list/array based on that list
+    # Initial pass will be a list created with (0, 0, 0) in each grid position
+    # This will then be converted via Numpy and PIL into a .png image
+    # This image will be displayed in the bottom right corner of the screen display
+    pass
 
 def show_size_selections(sizes):
     for size in sizes:
@@ -98,9 +118,16 @@ def get_actions(pos):
             print("Clearing grid")
             create_grid(block_size)
             current_color = (0, 0, 0)
+        if APP_ACTIONS[col] == "FILL": print("You chose 'FILL'")
+        if APP_ACTIONS[col] == "IMPORT": print("You chose 'IMPORT'")
+        if APP_ACTIONS[col] == "EXPORT": print("You chose 'EXPORT'")
 
-def show_image():
-    pg.draw.rect(screen, MAGENTA, (640, 720, 200, 200))
+def create_image():
+    array = np.array(grid_array, dtype=np.uint8)
+    img = Image.fromarray(array)
+    img.save('pixel_img.png')
+    pixel_image = pg.transform.scale(pg.image.load('pixel_img.png'), (200, 200))
+    screen.blit(pixel_image, (640, 720))
 
 def plot_rect(text, pos, size, selected):
     label = title_font.render(text, True, BLACK)
@@ -114,7 +141,7 @@ pg.display.set_caption("Pixel Art Editor")
 
 button_font = pg.font.Font(None, 30)
 title_font = pg.font.Font(None, 50)
-app_title = title_font.render("PIXEL ART EDITOR", True, GREEN)
+app_title = title_font.render("PIXEL ART EDITOR", True, ROYAL_PURPLE)
 
 clock = pg.time.Clock()
 
@@ -122,6 +149,7 @@ clock = pg.time.Clock()
 grid_size = 32
 current_color = (255, 255, 255)
 block_size = GRID_WIDTH // grid_size
+grid_array = []
 sizes = [
     ["8x8",(680, 50), (140, 40), False, 8],
     ["16x16",(680, 90), (140, 40), False, 16],
@@ -141,5 +169,6 @@ while active:
     screen.blit(app_title, (WIDTH/2 - app_title.get_width()/2, 10))
     get_input(events, sizes, COLORS, APP_ACTIONS)
     pg.display.update()
+    clock.tick(FPS)
 
 pg.quit()
