@@ -35,8 +35,10 @@ ORANGE = (235, 161, 52)
 GRAY = (200, 200, 200)
 LIGHT_GRAY = (170, 170, 170)
 DARK_GRAY = (120, 120, 120)
+BROWN = (150, 75, 0)
 ROYAL_PURPLE = (140, 30, 60)
-WHITE_SHADOW = (180, 180, 0)
+WHITE_SHADOW = (200, 150, 110)
+BROWN_SHADOW = (170, 90, 0)
 
 COLORS = [
     BLACK,
@@ -59,6 +61,7 @@ COLORS = [
     GRAY,
     LIGHT_GRAY,
     DARK_GRAY,
+    BROWN,
     ROYAL_PURPLE
 ]
 
@@ -83,7 +86,16 @@ COLOR_NAMES = [
      "Gray",
      "Light Gray",
      "Dark Gray",
+     "Brown",
      "Royal Purple"
  ]
 
 APP_ACTIONS = ["CLEAR", "FILL", "IMPORT", "EXPORT", "QUIT"]
+INSTRUCTIONS = ["L-Shift: Continuous draw"]
+
+sizes = [
+    ["8x8",(692, 50), (140, 40), False, 8],
+    ["16x16",(692, 90), (140, 40), False, 16],
+    ["32x32",(692, 130), (140, 40), True, 32],
+    ["64x64",(692, 170), (140, 40), False, 64]
+]
