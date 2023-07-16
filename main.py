@@ -170,8 +170,9 @@ def import_image():
         grid_array.append(temp_array)
 
 def export_image():
-    export_name = display_image_request("Export") + ".png"
+    export_name = display_image_request("Export")
     shutil.copy("pixel_img.png", export_name)
+    create_grid(False)
 
 def display_image_request(process):
     global grid_size, block_size
@@ -204,8 +205,13 @@ def display_image_request(process):
                                     text_in = True
                                     pass_criteria = True
                         elif process == "Export":
-                            if user_entry.isalpha() or '.' in user_entry and len(user_entry) > 1:
+                            entry = user_entry.split(".")
+                            print(entry)
+                            if entry[0].isalpha():
+                                if len(entry) == 1:
+                                    user_entry += ".png"
                                 text_in = True
+                                pass_criteria = True
                         if not pass_criteria:
                             error.play()
                             user_entry = ""
@@ -237,7 +243,7 @@ grid_size = 32
 block_size = GRID_WIDTH // grid_size
 fill = False
 lshift_locked = False
-current_color = (255, 255, 255)
+current_color = WHITE
 
 create_grid(False)
 clock = pg.time.Clock()
