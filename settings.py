@@ -65,31 +65,6 @@ COLORS = [
     ROYAL_PURPLE
 ]
 
-COLOR_NAMES = [
-     "Black",
-     "White",
-     "Red",
-     "Green",
-     "Lime",
-     "Emerald",
-     "Blue",
-     "Sky Blue",
-     "Light Blue",
-     "Royal Blue",
-     "Purple",
-     "Yellow",
-     "Cyan",
-     "Magenta",
-     "Pink",
-     "Strawberry",
-     "Orange",
-     "Gray",
-     "Light Gray",
-     "Dark Gray",
-     "Brown",
-     "Royal Purple"
- ]
-
 APP_ACTIONS = ["CLEAR", "FILL", "IMPORT", "EXPORT", "QUIT"]
 INSTRUCTIONS = ["L-Shift: Continuous draw"]
 

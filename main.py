@@ -120,7 +120,7 @@ def get_color(pos):
     col_end = ((pos[0] -40) % 50)
     if col_end <= 30:
         ix = row * num_cols + col_start
-        if ix < len(COLOR_NAMES):
+        if ix < len(COLORS):
             current_color = COLORS[ix]
 
 def show_actions(actions):
@@ -206,8 +206,7 @@ def display_image_request(process):
                                     pass_criteria = True
                         elif process == "Export":
                             entry = user_entry.split(".")
-                            print(entry)
-                            if entry[0].isalpha():
+                            if entry[0].isalnum():
                                 if len(entry) == 1:
                                     user_entry += ".png"
                                 text_in = True
@@ -215,7 +214,6 @@ def display_image_request(process):
                         if not pass_criteria:
                             error.play()
                             user_entry = ""
-                            print("Incorrect entry")
                             screen.fill(DARK_GRAY)
                             screen.blit(app_title, (WIDTH / 2 - app_title.get_width() / 2, 10))
                 else:
